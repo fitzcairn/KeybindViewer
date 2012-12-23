@@ -1,0 +1,837 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+  <!--
+
+        Templates
+
+   -->
+
+  <!-- Config UIPanelButton template -->
+  <Button name="KV_ConfigButtonTemplate" inherits="UIPanelButtonTemplate" virtual="true">
+    <Size x="100" y="22"/>
+    <Scripts>
+      <OnLoad>
+        -- Set a tooltip and text, and register widget for disabling
+        KV:LoadButton(self:GetParent(), self)
+      </OnLoad>
+      <OnEnter>
+        KV:CreateButtonToolTip(self)
+      </OnEnter>
+      <OnLeave>
+        GameTooltip:Hide();
+      </OnLeave>
+      <OnClick>
+        -- Record click.
+        KV:OnClick(self)
+      </OnClick>
+    </Scripts>
+  </Button>
+
+  <!-- KV dialog box template -->
+  <Frame name="KV_DialogTemplate" parent="UIParent" frameStrata="FULLSCREEN_DIALOG" enableMouse="true" moveable="false" virtual="true">
+    <Size x="350" y="165" />
+    <TitleRegion>
+      <Size x="100" y="20"/>
+      <Anchors>
+        <Anchor point="TOP"/>
+      </Anchors>
+    </TitleRegion>
+    <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER" />
+    </Anchors>
+    <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+      <Color a="1" r="0" g="0" b="0" />
+      <BackgroundInsets>
+        <AbsInset left="10" right="11" top="11" bottom="10" />
+      </BackgroundInsets>
+      <TileSize val="32"/>
+      <EdgeSize val="32"/>
+    </Backdrop>
+    <Layers>
+      <Layer level="ARTWORK">
+
+        <!-- Top of the frame -->
+        <Texture name="$parentFrameHeader" file="Interface\DialogFrame\UI-DialogBox-Header">
+          <Size>
+            <AbsDimension x="256" y="64"/>
+          </Size>
+          <Anchors>
+            <Anchor point="TOP">
+              <Offset>
+                <AbsDimension x="0" y="12"/>
+              </Offset>
+            </Anchor>
+          </Anchors>
+        </Texture>
+
+        <!-- Box title -->
+        <FontString name="$parentTitle" inherits="GameFontNormal">
+          <Anchors>
+            <Anchor point="TOP" relativeTo="$parentFrameHeader">
+              <Offset>
+                <AbsDimension x="0" y="-14"/>
+              </Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+
+      </Layer>
+    </Layers>
+    <Scripts>
+      <OnLoad>
+        -- Set localized text.
+        KV:LoadDialog(self, _G[self:GetName().."Title"])
+      </OnLoad>
+      <OnShow>
+        KV:ShowDialog(self)
+      </OnShow>
+    </Scripts>
+  </Frame>
+
+  <!-- Dropdown menu template. -->
+  <Frame name="KV_Dropdown" inherits="UIDropDownMenuTemplate" virtual="true">
+    <Layers>
+      <Layer level="ARTWORK">
+        <FontString name="$parentLabel" inherits="GameFontNormal">
+          <Anchors>
+            <Anchor point="RIGHT" relativePoint="LEFT">
+              <Offset x="12" y="2"/>
+            </Anchor>
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+    <Scripts>
+      <OnEnter>
+        KV:CreateDropDownToolTip(_G[self:GetName() .. "Button"])
+      </OnEnter>
+      <OnLeave>
+        GameTooltip:Hide();
+      </OnLeave>
+      <OnShow>
+        -- Set up menu, passing the frame, button and label
+        KV:CreateDropDownMenu(self:GetParent(),
+                                    self, 
+                                    _G[self:GetName() .. "Button"],
+                                    _G[self:GetName() .. "Label"])
+      </OnShow>
+    </Scripts>
+  </Frame>
+
+  <!-- Config EditBox + Label template -->
+  <EditBox name="KV_EditInputTemplate" inherits="InputBoxTemplate" virtual="true">
+    <Layers>
+      <Layer level="ARTWORK">
+        <FontString name="$parentLabel" inherits="GameFontNormal">
+          <Anchors>
+            <Anchor point="RIGHT" relativeTo="$parent" relativePoint="LEFT">
+              <Offset x="-8" y="0"/>
+            </Anchor>
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+    <Scripts>
+      <OnEnter>
+        KV:CreateEditBoxToolTip(self)
+      </OnEnter>
+      <OnLeave>
+        GameTooltip:Hide();
+      </OnLeave>
+      <OnEscapePressed>
+        self:ClearFocus();
+      </OnEscapePressed>
+      <OnEnterPressed>
+        self:ClearFocus();
+      </OnEnterPressed>
+      <OnTabPressed>
+        self:ClearFocus();
+      </OnTabPressed>
+      <OnShow>
+        self:SetWidth(30)
+        KV:LoadEditBox(self:GetParent(), self, _G[self:GetName().."Label"])
+      </OnShow>
+    </Scripts>
+    <FontString inherits="GameFontHighlight" />
+  </EditBox>
+
+
+  <!-- Config Checkbutton template -->
+  <CheckButton name="KV_ConfigCheckButtonTemplate" inherits="OptionsCheckButtonTemplate" virtual="true">
+    <Scripts>
+      <OnLoad>
+        -- Set a tooltip and checkbox label.
+        KV:LoadCheckBox(self:GetParent(), self)
+      </OnLoad>
+      <OnClick>
+        -- Oh why not.
+        if ( self:GetChecked() ) then
+          PlaySound("igMainMenuOptionCheckBoxOn");
+        else
+          PlaySound("igMainMenuOptionCheckBoxOff");
+        end
+        
+        -- Record check/unchecked.
+        KV:OnCheck(self)
+      </OnClick>
+    </Scripts>
+  </CheckButton>
+
+
+  <!-- Keyboard button template. -->
+  <Frame name="KV_ButtonTemplate" virtual="true">
+    <Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\FriendsFrame\UI-Toast-Border" tile="true">
+      <EdgeSize val="8"/>
+      <TileSize val="8"/>
+      <Color a="1" r="0.75" g="0.75" b="0.75"/>
+      <BackgroundInsets left="2" right="2" top="2" bottom="2"/> 
+    </Backdrop> 
+    <Layers>
+      <Layer level="ARTWORK">
+        <FontString name="$parentText" inherits="GameFontNormalSmall">
+         <Anchors>
+           <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER" />
+         </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+    <Scripts>
+      <OnEnter>
+        --self:SetBackdropColor(1, 0, 0)
+      </OnEnter>          
+      <OnLeave>
+        --self:SetBackdropColor(0.75, 0.75, 0.75)
+      </OnLeave>
+    </Scripts>
+  </Frame>
+
+
+  <!-- Config block template -->
+  <Frame name="KV_ConfigUIBlockTemplate" virtual="true">
+    <Anchors>
+      <Anchor point="TOP" relativeTo="$parent" relativePoint="TOP">
+        <Offset x="0" y="0"/>
+      </Anchor>
+    </Anchors>
+    <Layers>
+      <Layer level="ARTWORK">
+        <FontString name="$parentLabel" inherits="GameFontHighlight">
+          <Anchors>
+            <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT">
+              <Offset x="8" y="-25"/>
+            </Anchor>
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+    <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+      <EdgeSize>
+        <AbsValue val="16"/>
+      </EdgeSize>
+      <TileSize>
+        <AbsValue val="16"/>
+      </TileSize>
+      <BackgroundInsets>
+        <AbsInset left="5" right="5" top="5" bottom="5"/>
+      </BackgroundInsets>
+    </Backdrop>
+    <Scripts>
+      <OnShow>
+        -- Init label.
+        KV:LoadBlock(self, 
+                     _G[self:GetName() .. "Label"])
+      </OnShow>
+    </Scripts>
+  </Frame>
+
+
+  <!-- 
+
+       Main Frame
+
+   -->
+  <Frame name="KV_Frame" hidden="true" toplevel="true" enableMouse="true" movable="true" resizable="true" parent="UIParent" frameStrata="HIGH">
+    <Size x="1000" y="400" />
+    <Anchors>
+      <Anchor point="CENTER" relativeTo="UIParent"/>
+    </Anchors>
+    <ResizeBounds>
+      <minResize x="1000" y="400"/>
+    </ResizeBounds>
+    <Layers>
+
+      <!-- Background textures -->
+      <Layer level="BACKGROUND">
+        <Texture name="$parentTopBg" file="Interface\WorldStateFrame\WorldStateFinalScoreFrame-TopBackground">
+          <Size y="20"/>
+          <Anchors>
+            <Anchor point="TOPLEFT"  relativeTo="$parent" relativePoint="TOPLEFT">
+              <Offset x="4" y="-18"/>
+            </Anchor>
+            <Anchor point="TOPRIGHT"  relativeTo="$parent" relativePoint="TOPRIGHT">
+              <Offset x="0" y="-18"/>
+            </Anchor>
+          </Anchors>
+        </Texture>
+        <Texture name="$parentTopMidBg">
+          <Size y="100"/>
+          <Anchors>
+            <Anchor point="TOPLEFT"  relativeTo="$parent" relativePoint="TOPLEFT">
+              <Offset x="4" y="-38"/>
+            </Anchor>
+            <Anchor point="TOPRIGHT"  relativeTo="$parent" relativePoint="TOPRIGHT">
+              <Offset x="0" y="-38"/>
+            </Anchor>
+            <Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT"/>
+            <Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT"/>
+          </Anchors>
+          <Color r="0.0" g="0.0" b="0.0" a="0.5" />
+        </Texture>
+      </Layer>
+
+      <!-- Frame -->
+      <Layer level="ARTWORK">
+
+        <!-- Addon Title -->
+        <FontString name="KV_Title" inherits="GameFontNormal">
+          <Size x="250" y="16"/>
+          <Anchors>
+            <Anchor point="TOP">
+              <Offset x="3" y="-17"/>
+            </Anchor>
+          </Anchors>
+        </FontString>
+
+        <!-- About String -->
+        <FontString name="KV_About" inherits="GameFontDisableSmall">
+          <Size x="300" y="16"/>
+          <Anchors>
+            <Anchor point="BOTTOM">
+              <Offset x="0" y="3"/>
+            </Anchor>
+          </Anchors>
+        </FontString>
+
+        <!-- Set up frame borders.  Have to use WorldStateFrame since
+             it has a top/bottom/left/right component suitable for allowing
+             resizing.
+        -->
+
+        <Texture name="$parentTopLeft" file="Interface\WorldStateFrame\WorldStateFinalScoreFrame-TopLeft">
+          <Size x="128" y="25"/>
+          <Anchors>
+            <Anchor point="TOPLEFT">
+              <Offset x="-4" y="-14"/>
+            </Anchor>
+          </Anchors>
+          <TexCoords left="0" right="1" top="0" bottom="0.1"/>
+        </Texture>
+
+        <Texture name="$parentTopRight" file="Interface\WorldStateFrame\WorldStateFinalScoreFrame-TopRight">
+          <Size x="140" y="25"/>
+          <Anchors>
+            <Anchor point="TOPRIGHT">
+              <Offset x="0" y="-14"/>
+            </Anchor>
+          </Anchors>
+          <TexCoords left="0" right="0.546875" top="0" bottom="0.1"/>
+        </Texture>
+
+        <!-- No width specified to allow for resizing. -->
+        <Texture name="$parentTop" file="Interface\WorldStateFrame\WorldStateFinalScoreFrame-Top">
+          <Size y="25"/>
+          <Anchors>
+            <Anchor point="TOPLEFT" relativeTo="$parentTopLeft" relativePoint="TOPRIGHT">
+              <Offset x="0" y="0"/>
+            </Anchor>
+            <Anchor point="TOPRIGHT" relativeTo="$parentTopRight" relativePoint="TOPLEFT">
+              <Offset x="0" y="0"/>
+            </Anchor>
+          </Anchors>
+          <TexCoords left="0.3" right="0.35" top="0" bottom="0.1"/>
+        </Texture>
+
+        <Texture name="$parentBotLeft" file="Interface\WorldStateFrame\WorldStateFinalScoreFrame-BotLeft">
+          <Size x="9" y="168"/>
+          <Anchors>
+            <Anchor point="BOTTOMLEFT">
+              <Offset x="-4" y="0"/>
+            </Anchor>
+          </Anchors>
+          <TexCoords left="0" right=".064" top="0" bottom="0.65625"/>
+        </Texture>
+
+        <Texture name="$parentBotRight" file="Interface\WorldStateframe\WorldStateFinalScoreFrame-BotRight">
+          <Size x="4" y="168"/>
+          <Anchors>
+            <Anchor point="BOTTOMRIGHT"/>
+              <Offset x="0" y="0"/>
+          </Anchors>
+          <TexCoords left="0.535" right="0.546875" top="0" bottom="0.65625"/>
+        </Texture>
+
+        <Texture name="$parentBottom" file="Interface\WorldStateFrame\WorldStateFinalScoreFrame-BotLeft">
+          <Size y="5"/>
+          <Anchors>
+            <Anchor point="BOTTOMLEFT" relativeTo="$parentBotLeft" relativePoint="BOTTOMRIGHT"/>
+            <Anchor point="BOTTOMRIGHT" relativeTo="$parentBotRight" relativePoint="BOTTOMLEFT"/>
+          </Anchors>
+          <TexCoords left="0.25" right="0.6" top="0.645" bottom="0.65625"/>
+        </Texture>
+
+        <Texture name="$parentMidLeft" file="Interface\WorldStateFrame\WorldStateFinalScoreFrame-TopLeft">
+          <Size x="9" y="10"/>
+          <Anchors>
+            <Anchor point="TOPLEFT" relativeTo="$parentTopLeft" relativePoint="BOTTOMLEFT">
+              <Offset x="0" y="0"/>
+            </Anchor>
+            <Anchor point="BOTTOMLEFT" relativeTo="$parentBotLeft" relativePoint="TOPLEFT">
+              <Offset x="0" y="0"/>
+            </Anchor>
+          </Anchors>
+          <TexCoords left="0" right=".064" top="0.9375" bottom="1"/>
+        </Texture>
+
+        <Texture name="$parentMidRight" file="Interface\WorldStateFrame\WorldStateFinalScoreFrame-TopRight">
+          <Size x="4" y="10"/>
+          <Anchors>
+            <Anchor point="TOPRIGHT" relativeTo="$parentTopRight" relativePoint="BOTTOMRIGHT"/>
+            <Anchor point="BOTTOMRIGHT" relativeTo="$parentBotRight" relativePoint="TOPRIGHT"/>
+          </Anchors>
+          <TexCoords left="0.535" right="0.546875" top="0.9375" bottom="1"/>
+        </Texture>
+      </Layer>
+    </Layers>
+    <Frames>
+
+      <!-- Close button -->
+      <Button name="$parentClose" inherits="UIPanelCloseButton">
+        <Anchors>
+          <Anchor point="TOPRIGHT">
+            <Offset x="5" y="-11"/>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnClick>
+            -- Close frame
+            self:GetParent():Hide()
+          </OnClick>
+          <OnEnter>
+            -- Light up + tooltip
+          </OnEnter>
+          <OnLeave>
+            -- Revert to normal state.
+          </OnLeave>
+        </Scripts>
+      </Button>
+      
+      <!-- Menu bar (+ drag handle) -->
+      <Button name="KV_MenuBar">
+        <Size y="65"/>
+        <Anchors>
+          <Anchor point="TOPLEFT">
+            <Offset x="3" y="-18"/>
+          </Anchor>
+          <Anchor point="TOPRIGHT">
+            <Offset x="-2" y="-18"/>
+          </Anchor>
+        </Anchors>
+
+        <Frames>
+
+          <!-- Top Config Menu -->
+          <Frame name="KV_ConfigBarTop">
+            <Anchors>
+              <Anchor point="TOPLEFT">
+                <Offset x="0" y="-25"/>
+              </Anchor>
+              <Anchor point="TOPRIGHT">
+                <Offset x="0" y="-25"/>
+              </Anchor>
+              <Anchor point="BOTTOMLEFT">
+                <Offset x="0" y="0"/>
+              </Anchor>
+              <Anchor point="BOTTOMRIGHT">
+                <Offset x="0" y="0"/>
+              </Anchor>
+            </Anchors>
+
+            <!-- Set up top config area. -->
+            <!-- Blocks are described in left-to-right order. -->
+            <Frames>
+
+              <!-- Block: Option Selection -->
+              <Frame name="KV_OptionsMenu" inherits="KV_ConfigUIBlockTemplate">
+                <!--Size x="555"/-->
+                <Size x="555"/>
+                <Anchors>
+                  <Anchor point="TOPLEFT" relativeTo="KV_ConfigBarTop" relativePoint="TOPLEFT">
+                    <Offset x="10" y="0"/>
+                  </Anchor>
+                  <Anchor point="BOTTOMLEFT" relativeTo="KV_ConfigBarTop" relativePoint="BOTTOMLEFT">
+                    <Offset x="10" y="0"/>
+                  </Anchor>
+
+                  <!-- To be removed once we the web link config is back. -->
+                  <Anchor point="BOTTOMRIGHT" relativeTo="KV_ConfigBarTop" relativePoint="BOTTOMRIGHT">
+                    <Offset x="-10" y="0"/>
+                  </Anchor>
+
+                </Anchors>
+                <Frames>
+
+                  <!-- Dropdown: select which trial to run. -->
+                  <Frame name="KV_SelectLayout" inherits="KV_Dropdown">
+                    <Anchors>
+                      <Anchor point="TOPLEFT">
+                        <Offset x="60" y="-6"/>
+                      </Anchor>
+                    </Anchors>
+                  </Frame>
+
+                  <!-- Dropdown: select which side mouse is on. -->
+                  <Frame name="KV_RightOrLeft" inherits="KV_Dropdown">
+                    <Anchors>
+                      <Anchor point="TOP" relativeTo="KV_SelectLayout" relativePoint="TOP"/>
+                      <Anchor point="LEFT" relativeTo="KV_SelectLayout" relativePoint="RIGHT">
+                        <Offset x="62" y="0"/>
+                      </Anchor>
+                    </Anchors>
+                  </Frame>
+
+                  <!-- Input box for custom mouse buttons. Accepts integers only.  -->
+                  <EditBox name="KV_ButtonsInput" inherits="KV_EditInputTemplate" autoFocus="false" parentKey="input" letters="4" numeric="true">
+                    <Size x="45" y="24"/>
+                    <Anchors>
+                      <Anchor point="LEFT" relativeTo="KV_RightOrLeft" relativePoint="RIGHT">
+                        <Offset x="60" y="2"/>
+                      </Anchor>
+                    </Anchors>
+                    <Scripts>
+                      <OnEditFocusLost>
+                        KV:SaveEditBoxIntValue(self, 3, KV.Constants.MAX_BUTTONS)
+                        KV:Refresh()
+                      </OnEditFocusLost>
+                    </Scripts>
+                  </EditBox>
+
+                  <!-- Checkbox to turn on/off minimap icon. -->
+                  <CheckButton name="KV_ShowMinimapIcon" inherits="KV_ConfigCheckButtonTemplate">
+                    <Anchors> 
+                      <Anchor point="LEFT" relativeTo="KV_ButtonsInput" relativePoint="RIGHT">
+                        <Offset x="108" y="-1"/>
+                      </Anchor>
+                    </Anchors> 
+                    <Scripts>
+                      <OnShow>
+                        local label = _G[self:GetName() .. "Text"]
+
+                        -- Set the label position
+                        label:ClearAllPoints()
+                        label:SetPoint("RIGHT", self, "LEFT", 0, 1)
+   
+                        -- Correctly set the hit area.
+                        self:SetHitRectInsets(0,0,0,0)
+                      </OnShow>     
+                    </Scripts>
+                  </CheckButton>
+
+                  <!-- Button to show bar selection dialog. -->
+                  <Button name="KV_SelectBars" inherits="KV_ConfigButtonTemplate" hidden="false">
+                    <Anchors> 
+                      <Anchor point="LEFT" relativeTo="KV_ShowMinimapIcon" relativePoint="RIGHT">
+                        <Offset x="10" y="1"/>
+                      </Anchor>
+                    </Anchors>      
+                  </Button>
+
+                  <!-- Export to web, disabled for now -->
+                  <EditBox name="KV_UrlBox" inherits="KV_EditInputTemplate" autoFocus="false" parentKey="input" numeric="false">
+                    <Size x="45" y="24"/>
+                    <Anchors>
+                      <Anchor point="LEFT" relativeTo="KV_SelectBars" relativePoint="RIGHT">
+                        <Offset x="112" y="0"/>
+                      </Anchor>
+                      <Anchor point="RIGHT" relativeTo="KV_OptionsMenu" relativePoint="RIGHT">
+                        <Offset x="-10" y="0"/>
+                      </Anchor>
+                    </Anchors>
+                    <Scripts>
+                      <OnLoad>
+                        --self:SetText(" ...Coming Soon!... ")
+                        --self:SetFontObject("GameFontDisable")
+                        --self:EnableKeyboard(false)
+                      </OnLoad>
+                      <OnTextChanged>
+                        if _G["KV_UrlBox"]:GetText() ~= KV.Link then _G["KV_UrlBox"]:SetText(KV.Link) end
+                      </OnTextChanged>
+
+
+
+                      <!-- To be re-enabled once the service is ready. -->
+                      <!--OnEditFocusGained>
+                        self._contents = self:GetText()
+                        self:SetCursorPosition(self:GetNumLetters())
+                        self:HighlightText()
+                        self:EnableMouse(false)
+                      </OnEditFocusGained>
+                      <OnEditFocusLost>
+                        self:HighlightText(0,0)
+                        self:SetText(self._contents)
+                        self:EnableMouse(true)
+                      </OnEditFocusLost-->
+                    </Scripts>
+                  </EditBox>
+
+                </Frames>
+              </Frame>
+              <!-- End Options Block -->
+
+            </Frames>
+          </Frame>                    
+        </Frames>
+
+        <!-- Moveable -->
+        <Scripts>
+          <OnMouseDown>
+            self:GetParent():StartMoving()
+          </OnMouseDown>
+          <OnMouseUp>
+            self:GetParent():StopMovingOrSizing()
+          </OnMouseUp>
+        </Scripts>
+      </Button>
+
+      <!-- Resize button -->
+      <Button name="$parentResizeCorner" alpha="0.5">
+        <Size x="16" y="16"/>
+        <Anchors>
+          <Anchor point="BOTTOMRIGHT">
+            <Offset x="-4" y="4"/>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnMouseDown>
+            self:GetParent():StartSizing()
+          </OnMouseDown>
+          <OnMouseUp>
+            self:GetParent():StopMovingOrSizing()
+          </OnMouseUp>
+          <OnHide>
+            self:GetParent():StopMovingOrSizing()
+          </OnHide>
+        </Scripts>
+        <NormalTexture file="Interface\AddOns\KeybindViewer\img\handle"/>
+      </Button>
+
+
+      <!-- Display area, docked relative to top menu bar -->
+      <Frame name="KV_BoardDisplayFrame" enableMouse="true">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="KV_MenuBar" relativePoint="BOTTOMLEFT">
+            <Offset x="8" y="0"/>
+          </Anchor>
+          <Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
+            <Offset x="-10" y="12"/>
+          </Anchor>
+        </Anchors>
+
+        <Scripts>
+          <OnSizeChanged>
+            -- Need to do this to handle resizeable frame.
+            self.GetWidth  = function() return w end
+            self.GetHeight = function() return h end
+            KV:OnResize(w,h)
+          </OnSizeChanged>
+
+          <OnShow>
+            -- Create the frame
+            KV:OnShow(self)
+          </OnShow>
+
+          <OnLoad>
+            -- Wait to read binds until all keybinds are loaded.
+            self:RegisterEvent("PLAYER_ENTERING_WORLD");
+
+            -- Need these to update the display
+            self:RegisterEvent("UPDATE_BINDINGS");
+            self:RegisterEvent("UPDATE_MACROS");
+            self:RegisterEvent("ACTIONBAR_SLOT_CHANGED");
+          </OnLoad>
+
+          <!-- React to events. -->
+          <OnEvent>
+            KV_OnEvent(self, event, name, ...)
+          </OnEvent>
+        </Scripts>
+      </Frame>
+
+    </Frames>
+  </Frame>
+
+
+  <!-- Dialog box for selecting which bars to use. -->
+  <Frame name="KV_BarsDialog" inherits="KV_DialogTemplate" parent="KV_Frame" frameStrata="FULLSCREEN_DIALOG" hidden="true">
+    <Size x="520" y="240" />
+    <Frames>
+
+      <!-- Checkboxes.  2 cols + Addon = 3 total.
+           Col 1: Bars 1-5 -->
+      <CheckButton name="KV_Bar1" inherits="KV_ConfigCheckButtonTemplate">
+        <Anchors> 
+          <Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+            <Offset x="20" y="-30"/>
+          </Anchor>
+        </Anchors>      
+      </CheckButton>
+      <CheckButton name="KV_Bar2" inherits="KV_ConfigCheckButtonTemplate">
+        <Anchors> 
+          <Anchor point="TOPLEFT" relativeTo="KV_Bar1" relativePoint="BOTTOMLEFT">
+            <Offset x="0" y="-5"/>
+          </Anchor>
+        </Anchors>      
+      </CheckButton>
+      <CheckButton name="KV_Bar3" inherits="KV_ConfigCheckButtonTemplate">
+        <Anchors> 
+          <Anchor point="TOPLEFT" relativeTo="KV_Bar2" relativePoint="BOTTOMLEFT">
+            <Offset x="0" y="-5"/>
+          </Anchor>
+        </Anchors>      
+      </CheckButton>
+      <CheckButton name="KV_Bar4" inherits="KV_ConfigCheckButtonTemplate">
+        <Anchors> 
+          <Anchor point="TOPLEFT" relativeTo="KV_Bar3" relativePoint="BOTTOMLEFT">
+            <Offset x="0" y="-5"/>
+          </Anchor>
+        </Anchors>      
+      </CheckButton>
+      <CheckButton name="KV_Bar5" inherits="KV_ConfigCheckButtonTemplate">
+        <Anchors> 
+          <Anchor point="TOPLEFT" relativeTo="KV_Bar4" relativePoint="BOTTOMLEFT">
+            <Offset x="0" y="-5"/>
+          </Anchor>
+        </Anchors>      
+      </CheckButton>
+
+      <!-- Col 2: Bars 6-10 -->
+      <CheckButton name="KV_Bar6" inherits="KV_ConfigCheckButtonTemplate">
+        <Anchors> 
+          <Anchor point="LEFT" relativeTo="KV_Bar1" relativePoint="RIGHT">
+            <Offset x="160" y="0"/>
+          </Anchor>
+        </Anchors>      
+      </CheckButton>
+      <CheckButton name="KV_Bar7" inherits="KV_ConfigCheckButtonTemplate">
+        <Anchors> 
+          <Anchor point="TOPLEFT" relativeTo="KV_Bar6" relativePoint="BOTTOMLEFT">
+            <Offset x="0" y="-5"/>
+          </Anchor>
+        </Anchors>      
+      </CheckButton>
+      <CheckButton name="KV_Bar8" inherits="KV_ConfigCheckButtonTemplate">
+        <Anchors> 
+          <Anchor point="TOPLEFT" relativeTo="KV_Bar7" relativePoint="BOTTOMLEFT">
+            <Offset x="0" y="-5"/>
+          </Anchor>
+        </Anchors>      
+      </CheckButton>
+      <CheckButton name="KV_Bar9" inherits="KV_ConfigCheckButtonTemplate">
+        <Anchors> 
+          <Anchor point="TOPLEFT" relativeTo="KV_Bar8" relativePoint="BOTTOMLEFT">
+            <Offset x="0" y="-5"/>
+          </Anchor>
+        </Anchors>      
+      </CheckButton>
+      <CheckButton name="KV_Bar10" inherits="KV_ConfigCheckButtonTemplate">
+        <Anchors> 
+          <Anchor point="TOPLEFT" relativeTo="KV_Bar9" relativePoint="BOTTOMLEFT">
+            <Offset x="0" y="-5"/>
+          </Anchor>
+        </Anchors>      
+      </CheckButton>
+
+
+      <!-- Col 3: Pet Bar + Addons -->
+      <CheckButton name="KV_PetBar" inherits="KV_ConfigCheckButtonTemplate">
+        <Anchors> 
+          <Anchor point="LEFT" relativeTo="KV_Bar6" relativePoint="RIGHT">
+            <Offset x="160" y="0"/>
+          </Anchor>
+        </Anchors>      
+      </CheckButton>
+      <CheckButton name="KV_StanceBar" inherits="KV_ConfigCheckButtonTemplate">
+        <Anchors> 
+          <Anchor point="TOPLEFT" relativeTo="KV_PetBar" relativePoint="BOTTOMLEFT">
+            <Offset x="0" y="-5"/>
+          </Anchor>
+        </Anchors>      
+      </CheckButton>
+      <CheckButton name="KV_BindPad" inherits="KV_ConfigCheckButtonTemplate">
+        <Anchors> 
+          <Anchor point="TOPLEFT" relativeTo="KV_StanceBar" relativePoint="BOTTOMLEFT">
+            <Offset x="0" y="-5"/>
+          </Anchor>
+        </Anchors>      
+      </CheckButton>
+      <CheckButton name="KV_Dominos" inherits="KV_ConfigCheckButtonTemplate">
+        <Anchors> 
+          <Anchor point="TOPLEFT" relativeTo="KV_BindPad" relativePoint="BOTTOMLEFT">
+            <Offset x="0" y="-5"/>
+          </Anchor>
+        </Anchors>      
+      </CheckButton>
+      <CheckButton name="KV_Bartender" inherits="KV_ConfigCheckButtonTemplate">
+        <Anchors> 
+          <Anchor point="TOPLEFT" relativeTo="KV_Dominos" relativePoint="BOTTOMLEFT">
+            <Offset x="0" y="-5"/>
+          </Anchor>
+        </Anchors>      
+      </CheckButton>
+
+      <!-- Buttons -->
+
+      <!-- Select all. -->
+      <Button name="KV_SelectAll" inherits="KV_ConfigButtonTemplate" hidden="false">
+        <Size x="110" y="22"/>
+        <Anchors> 
+          <Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT">
+            <Offset x="20" y="20"/>
+          </Anchor>
+        </Anchors>      
+      </Button>
+
+      <!-- Visible only. -->
+      <Button name="KV_SelectBlizz" inherits="KV_ConfigButtonTemplate" hidden="false">
+        <Size x="110" y="22"/>
+        <Anchors> 
+          <Anchor point="LEFT" relativeTo="KV_SelectAll" relativePoint="RIGHT">
+            <Offset x="14" y="0"/>
+          </Anchor>
+        </Anchors>      
+      </Button>
+
+      <!-- Button to show bar selection dialog. -->
+      <Button name="KV_SelectVisible" inherits="KV_ConfigButtonTemplate" hidden="false">
+        <Size x="110" y="22"/>
+        <Anchors> 
+          <Anchor point="LEFT" relativeTo="KV_SelectBlizz" relativePoint="RIGHT">
+            <Offset x="14" y="0"/>
+          </Anchor>
+        </Anchors>      
+      </Button>
+
+      <!-- Button to show bar selection dialog. -->
+      <Button name="KV_BarsOk" inherits="KV_ConfigButtonTemplate" hidden="false">
+        <Size x="110" y="22"/>
+        <Anchors> 
+          <Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
+            <Offset x="-20" y="20"/>
+          </Anchor>
+        </Anchors>      
+      </Button>
+
+    </Frames>
+  </Frame>
+
+</Ui>

@@ -1,0 +1,96 @@
+
+
+
+problems:
+
+- how to represent slots from addons
+- how to represent different sources in different slots.
+
+how to control what slots get polled for their contents
+
+
+
+Model
+
+SlotSet
+ |
+  - Slot
+
+
+Slot:CheckBind(bind) -- t/f
+
+Slot:GetAction() -- Break into individual accessors?
+
+Slot:GetBind()
+Slot:GetSrc() -- action/bindpad/dominos/etc
+Slot:Get.... -- Define all accessors
+
+Slot:Clear()
+
+
+
+
+
+
+SlotSet:GetSlotForBind(BIND)
+SlotSet:GetSlotForCmd(CMD)
+
+SlotSet:GetSlotForActionId(id)
+SlotSet:GetSlotForName(action_name)
+
+-- # == slot number
+SlotSet:AddSlot(#, src)
+SlotSet:RemoveSlot(#, src)
+SlotSet:AddSlots(s#, e#, src)
+
+
+-- Add a method to clean up lazily deleted slots, and 
+-- make the user call it to avoid getting dups.
+
+SlotSet:Num()  -- returns number of slots in set (N)
+SlotSet:Get(i) -- Get slot i of N
+
+SlotSet:Iter(src) -- returns an iterator over the binds for src.
+
+SlotSet:Clear() -- in-place cleanup
+
+
+
+
+
+
+
+
+
+
+BUGS:
+
+
+- Add stance bar binds to BLIZZARD action info in Binds.lua
+
+- TEST TEST TEST TEST
+
+
+
+TODO:
+
+- Redo all coloring to not suck
+
+- Clique compat
+
+
+
+
+
+NEXT STEPS:
+
+- Have the bind reader automatically guess how many buttons to use,
+and set that as the starting default.
+
+- Link text generation!
+
+- Web service!
+
+- Add compatability with bindpad/clique. (BINDPAD DONE!)
+
+

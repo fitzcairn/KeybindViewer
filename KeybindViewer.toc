@@ -1,0 +1,32 @@
+## Interface: 40000
+## Title: KeybindViewer
+## Author: Fitzcairn
+## Notes: View your keybind layout on-screen and on the web.
+## DefaultState: Enabled
+## LoadOnDemand: 0
+## SavedVariables: KV_Vals
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+lib\FitzUtils\Util.lua
+lib\FitzUtils\Encode.lua
+
+lib\Defs.lua
+
+localization\Text.lua
+localization\KeyLayouts.lua
+
+ActionFilter.lua
+
+lib\UI.lua
+lib\Config.lua
+lib\Render.lua
+lib\Binds.lua
+lib\Icons.lua
+lib\WebLink.lua
+
+KeybindViewer.lua
+KeybindViewer.xml
+
